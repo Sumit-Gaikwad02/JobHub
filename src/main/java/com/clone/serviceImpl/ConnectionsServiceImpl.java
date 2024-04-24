@@ -21,6 +21,9 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 	@Autowired
 	public ConnectionsRepository connectionsRepo;
 
+	@Autowired
+	private NotificationsServiceImpl notificationService;
+
 	@Override
 	public Connections sendConnectRequest(Users reciever, String email) {
 		Users sender = userRepository.findByEmail(email);
@@ -28,6 +31,10 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 		Users receiver = userRepository.findById(recieverId)
 				.orElseThrow(() -> new EmailNotFoundException("reciever not found"));
 		if (receiver != null) {
+
+			String message = sender.getFirstName() + sender.getLastName() + " have sent you the connection request.";
+			notificationService.saveNotification(message, receiver);
+
 			Connections connection = new Connections();
 			connection.setSender(sender);
 			connection.setReciever(receiver);
@@ -43,6 +50,7 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 		Users user = userRepository.findByEmail(email);
 		if (user != null) {
 			String Status = "Pending";
+			// find and return list by reciever and status
 			return connectionsRepo.findByRecieverAndStatus(user, Status);
 		} else {
 			throw new UsernameNotFoundException("email not found");
@@ -55,15 +63,54 @@ public class ConnectionsServiceImpl implements ConnectionsService {
 		Connections request = connectionsRepo.findById(connectionId)
 				.orElseThrow(() -> new RuntimeException("Request not found"));
 		request.setStatus("Accepted");
+
+//	Accepted request notifiction
+		Users accepter = request.getReciever();
+		Users notificationReciever = request.getSender();
+		String message = accepter.getFirstName() + accepter.getLastName() + " Accepted your  connection request.";
+		notificationService.saveNotification(message, notificationReciever);
 		return connectionsRepo.save(request);
 	}
 
 	@Override
-	public Connections declineRequest(Long connectionId) {
+	public String declineRequest(Long connectionId) {
 		Connections request = connectionsRepo.findById(connectionId)
 				.orElseThrow(() -> new RuntimeException("Request not found"));
-		request.setStatus("Declined");
-		return connectionsRepo.save(request);
+		if (request != null) {
+			connectionsRepo.deleteById(connectionId);
+			return "request declined";
+		} else {
+			throw new UsernameNotFoundException("user not found not found");
+		}
+
+	}
+
+	@Override
+	public List<Connections> getConnections(String email) {
+		Users user = userRepository.findByEmail(email);
+		if (user != null) {
+			String Status = "Accepted";
+			return connectionsRepo.findBySenderOrRecieverAndStatus(user, user, Status);
+		} else {
+			throw new UsernameNotFoundException("email not found");
+		}
+	}
+
+	@Override
+	public int connectionCount(String email) {
+		Users user = userRepository.findByEmail(email);
+		if (user != null) {
+			String status = "Accepted";
+			List<Connections> list = connectionsRepo.findBySenderOrRecieverAndStatus(user, user, status);
+			int count = 0;
+			for (Connections connection : list) {
+				count++;
+				System.out.println("***************************" + count);
+			}
+			return count;
+		} else {
+			throw new EmailNotFoundException("email not found");
+		}
 
 	}
 

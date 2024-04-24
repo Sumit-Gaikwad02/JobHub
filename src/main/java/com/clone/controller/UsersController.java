@@ -1,5 +1,6 @@
 package com.clone.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.clone.exceptionHandler.EmailNotFoundException;
+import com.clone.model.Connections;
 import com.clone.model.Users;
 import com.clone.securityconfig.CustomUserDetailsService;
 import com.clone.serviceImpl.UsersServiceImpl;
@@ -68,11 +73,80 @@ public class UsersController {
 		return ResponseEntity.ok("Password changed successfully");
 	}
 
+	@GetMapping("/LoggedUserProfile")
+	public ResponseEntity<Users> userProfileDetails(Authentication authentication) {
+		String email = authentication.getName();
+		Users loggedUser = usersService.loggingUser(email);
+		return ResponseEntity.ok().body(loggedUser);
+
+	}
+
+	@GetMapping("/userProfile")
+	public ResponseEntity<Users> userDetails(@RequestParam Long userId, Authentication authentication) {
+		String email = authentication.getName();
+		Users response = usersService.getUser(userId, email);
+		return ResponseEntity.ok().body(response);
+
+	}
+
+	@PutMapping("/updatePhoto")
+	public ResponseEntity<String> acceptConnectionRequest(@RequestParam(required = false) MultipartFile profilePicture,
+			Authentication authentication) throws IOException {
+		String email = authentication.getName();
+		
+		
+		
+		if(profilePicture == null) {
+			byte[] profilePhoto = profilePicture.getBytes();
+			String response = usersService.updateProfilePicture(profilePhoto, email);
+			return ResponseEntity.ok(response);
+			
+		}else {
+			throw new RuntimeException("profile is null.");
+		}
+
+//		if ( coverPicture != null && profilePicture != null) {
+//			coverPhoto = coverPicture.getBytes();
+//			profilePhoto = profilePicture.getBytes();
+//
+//		} else if (  coverPicture != null && profilePicture == null) {
+//			coverPhoto = coverPicture.getBytes();
+//
+//		} else if ( profilePicture != null && coverPicture == null) {
+//			profilePhoto = profilePicture.getBytes();
+//		}else {
+//			throw new EmailNotFoundException("email not found.");
+//		}
+
+		
+	}
+
 	@GetMapping("/searchBar")
 	public ResponseEntity<List<Users>> searchBar(@RequestParam String name) {
 		List<Users> UserList = usersService.searchBar(name);
 		return ResponseEntity.ok().body(UserList);
 
+	}
+
+	@PutMapping("/editAbout")
+	public ResponseEntity<String> editAbout(@RequestParam String about, Authentication authentication) {
+		String email = authentication.getName();
+		String response = usersService.updateAbout(about, email);
+		return ResponseEntity.ok().body(response);
+
+	}
+
+	@GetMapping("/getAbout")
+	public ResponseEntity<String> getAbout(Authentication authentication) {
+		String email = authentication.getName();
+		String response = usersService.getAboutByLoggedUser(email);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/getAboutByUser")
+	public ResponseEntity<String> getAboutByUser(@RequestParam Long UserId) {
+		String response = usersService.getAboutByUser(UserId);
+		return ResponseEntity.ok().body(response);
 	}
 
 }

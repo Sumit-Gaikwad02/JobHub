@@ -36,37 +36,37 @@ public class AuthController {
 
 	@Autowired
 	private jwtHelper jwtHelper;
-	
 
-	  @PostMapping("/login-user")
-	    public ResponseEntity<JwtResponse> login(@RequestParam String email, @RequestParam String password) {
- System.out.println("request recived");
-		  
-	        // Authenticate user
-	        this.doAuthenticate(email, password);
+	@PostMapping("/login-user")
+	public ResponseEntity<JwtResponse> login(@RequestParam String email, @RequestParam String password) {
+		System.out.println("request recived");
 
-	        // Load user details
-	        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+		// Authenticate user
+		this.doAuthenticate(email, password);
 
-	        // Generate JWT token
-	        String token = this.jwtHelper.generateToken(userDetails);
+		// Load user details
+		UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-	        // Create JwtResponse with token and username
-	        JwtResponse response = JwtResponse.builder().jwtToken(token).username(userDetails.getUsername()).build();
+		// Generate JWT token
+		String token = this.jwtHelper.generateToken(userDetails);
 
-	        System.out.println(response);
-	        // Return the response with token to React
-	        return new ResponseEntity<>(response, HttpStatus.OK);
-	    }
+		// Create JwtResponse with token and username
+		JwtResponse response = JwtResponse.builder().jwtToken(token).username(userDetails.getUsername()).build();
 
-	    private void doAuthenticate(String email, String password) {
-	        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
-	        try {
-	            authenticationManager.authenticate(authentication);
-	        } catch (BadCredentialsException e) {
-	            throw new BadCredentialsException("Invalid Username or Password!!");
-	        }
-	    }
+		System.out.println(response);
+		// Return the response with token to React
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	private void doAuthenticate(String email, String password) {
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+		try {
+			authenticationManager.authenticate(authentication);
+		} catch (BadCredentialsException e) {
+			throw new BadCredentialsException("Invalid Username or Password!!");
+		}
+	}
+
 	@GetMapping("/login-success")
 	public ResponseEntity<String> authSuccess() {
 		SecurityContextHolder.getContext().getAuthentication().getName();
@@ -74,9 +74,20 @@ public class AuthController {
 		return ResponseEntity.ok("loggin successful");
 	}
 
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(@RequestParam String token) {
+		// Invalidate the JWT token
+		jwtHelper.invalidateToken(token);
+
+		// Clear the security context
+		SecurityContextHolder.clearContext();
+
+		return ResponseEntity.ok("Logout successful.");
+	}
+
 	@GetMapping("/logout-success")
 	public ResponseEntity<String> logoutSuccess() {
-		return ResponseEntity.ok("Logout successful! Have a great day!");
+		return ResponseEntity.ok("Logout successful.");
 	}
 
 	@GetMapping("/access-denied")

@@ -9,5 +9,6 @@ public interface PostEventService {
 
 	List<PostEvent> fetchEvent(String email);
 	
+	String deleteEvent(Long eventId);
 	
 }

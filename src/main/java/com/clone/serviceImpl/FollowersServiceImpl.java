@@ -21,6 +21,9 @@ public class FollowersServiceImpl implements FollowersService {
 	@Autowired
 	private FollowerRepository followersRepository;
 
+	@Autowired
+	private NotificationsServiceImpl notificationService;
+
 	@Override
 	public Followers followUser(Users user, String email) {
 		Users follower = userRepository.findByEmail(email);
@@ -31,6 +34,10 @@ public class FollowersServiceImpl implements FollowersService {
 			Followers follow = new Followers();
 			follow.setFollower(follower);
 			follow.setFollowingUser(followingUser);
+
+//	 follow notification for user
+			String message = follower.getFirstName() + follower.getLastName() + "satrted following you.";
+			notificationService.saveNotification(message, followingUser);
 			return followersRepository.save(follow);
 		} else {
 			throw new UsernameNotFoundException("Sender or receiver not found.");

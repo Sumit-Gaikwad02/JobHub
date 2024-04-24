@@ -13,5 +13,12 @@ public interface ConnectionsService {
 
 	public Connections acceptRequest(Long connectionId);
 
-	public Connections declineRequest(Long ConnectionId);
+	public String declineRequest(Long ConnectionId);
+	
+	public List<Connections> getConnections(String email);
+	
+	public int connectionCount(String email);
+	
+
+	
 }

@@ -1,6 +1,5 @@
 package com.clone.serviceImpl;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,19 @@ public class PostEventServiceImpl implements PostEventService {
 			return repo.findByUser(user);
 		} else {
 			throw new UsernameNotFoundException("username not found");
+		}
+
+	}
+
+	@Override
+	public String deleteEvent(Long eventId) {
+
+		PostEvent EventId = repo.findById(eventId).orElseThrow(() -> new RuntimeException("Post not found."));
+		if (EventId != null) {
+			repo.deleteById(eventId);
+			return "Event deleted successfully.";
+		} else {
+			throw new RuntimeException("Post not found.");
 		}
 
 	}

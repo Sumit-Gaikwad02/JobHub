@@ -29,9 +29,6 @@ public class PostsServiceImpl implements PostsService {
 	@Autowired
 	private PostsRepository postRepository;
 
-	@Value("${spring.servlet.multipart.location}")
-	private String uploadPath;
-
 	@Override
 	public Posts createPost(Posts post, String email, byte[] media) {
 

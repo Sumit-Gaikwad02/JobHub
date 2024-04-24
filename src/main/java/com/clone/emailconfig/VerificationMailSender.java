@@ -18,7 +18,7 @@ public class VerificationMailSender {
 		mailSender.setHost("smtp.gmail.com");
 		mailSender.setPort(587);
 		mailSender.setUsername("gaikwadsumit262@gmail.com");
-		mailSender.setPassword("chme cmmg gsyu dcwn");
+		mailSender.setPassword("vmgf bpww vtgj ewxg");
 
 		Properties props = mailSender.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");

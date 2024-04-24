@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 public class Users {
@@ -15,6 +16,7 @@ public class Users {
 
 	@Column(unique = true)
 	private String email;
+
 	private String password;
 	private String firstName;
 	private String lastName;
@@ -24,7 +26,21 @@ public class Users {
 	private String recentjOB;
 	private String employeeTye;
 	private String otp;
+	private String about;
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
 	boolean enabled;
+	@Lob
+	private byte[] coverPhoto;
+	@Lob
+	private byte[] profilePicture;
 
 	public long getUserId() {
 		return userId;
@@ -120,6 +136,22 @@ public class Users {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public byte[] getCoverPhoto() {
+		return coverPhoto;
+	}
+
+	public void setCoverPhoto(byte[] coverPhoto) {
+		this.coverPhoto = coverPhoto;
+	}
+
+	public byte[] getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(byte[] profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 }

@@ -37,10 +37,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/users/**", "/login-user").permitAll()
-				.antMatchers("/postEvent/**", "/posts/**", "/postPhoto/**", "/Followers/**", "/users/searchBar")
-				.authenticated().anyRequest().permitAll().and().formLogin().disable().logout().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).maximumSessions(1)
+		http.csrf().disable().authorizeRequests().antMatchers("/users/register","/users/emailOtp", "/users/forgot-passwordOTP", "/users/reset-password", "/login-user").permitAll()
+				.antMatchers("/users/**", "/postEvent/**", "/posts/**", "/postPhoto/**", "/Followers/**", "/users/searchBar",
+						"/connections/**", "/groupPost/**", "/Education/**", "/Experience/**", "/groupPost/**", "/GroupPostPhoto/**", "/groupRequest/**", 
+						"/group/**", "/message/**", "/notification/**", "/page/**", "/pageFollow/**", "/pagePost/**", "/voteOption/**", "/ResumeBuilder/**", "/Skills/**")
+				.authenticated().anyRequest().permitAll().and().formLogin().disable().logout().logoutUrl("/logout")
+				.logoutSuccessUrl("/logout-success").deleteCookies("JWT_TOKEN").and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).maximumSessions(1)
 				.maxSessionsPreventsLogin(false).sessionRegistry(sessionRegistry()).and().and().exceptionHandling()
 				.authenticationEntryPoint(point).accessDeniedPage("/access-denied");
 

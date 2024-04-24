@@ -45,7 +45,7 @@ public class FollowersController {
 		return ResponseEntity.ok(followingList);
 	}
 
-	@DeleteMapping("/unfollow/{followId}")
+	@DeleteMapping("/unfollow")
 	public ResponseEntity<String> unfollow(@RequestBody long followId) {
 		String result = followersService.unfollow(followId);
 		return ResponseEntity.ok(result);

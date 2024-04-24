@@ -30,6 +30,9 @@ public class UsersServiceImpl implements UsersService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private NotificationsServiceImpl notificationService;
+
 	// Register user***
 	@Override
 	public void registerUser(Users user) {
@@ -129,9 +132,9 @@ public class UsersServiceImpl implements UsersService {
 		javaMailSender.send(message);
 	}
 
-	// Search Users by firstname or lastname****
+//	 Search Users by firstname or lastname****
 	public List<Users> searchBar(String name) {
-		// Split input string into firstName and lastName*****
+//	 Split input string into firstName and lastName*****
 		String[] names = name.split("\\s+");
 		String firstName = names.length > 0 ? names[0] : "";
 		String lastName = names.length > 1 ? names[1] : "";
@@ -146,6 +149,81 @@ public class UsersServiceImpl implements UsersService {
 			return userRepository.findByFirstNameIgnoreCaseOrLastNameIgnoreCase(firstName, firstName);
 		} else {
 			return userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName, lastName);
+		}
+	}
+
+	@Override
+	public Users loggingUser(String email) {
+		Users user = userRepository.findByEmail(email);
+		if (user != null) {
+			long userId = user.getUserId();
+			return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("useId not found"));
+		} else {
+			throw new EmailNotFoundException("registered Email not found");
+		}
+	}
+
+	@Override
+	public Users getUser(Long userId, String email) {
+		Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("useId not found"));
+
+//	profileViewd notification
+		Users viewer = userRepository.findByEmail(email);
+		String message = viewer.getFirstName() + viewer.getLastName() + " viewed your profile.";
+		notificationService.saveNotification(message, user);
+
+		return user;
+
+	}
+
+	@Override
+	public String updateProfilePicture( byte[] profilePicture,String email) {
+	Users user = userRepository.findByEmail(email);
+		//Users user=userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
+		
+			
+			if (profilePicture != null) {
+				user.setProfilePicture(profilePicture);
+				 userRepository.save(user);
+				 return "update successfull.";
+			}
+			 else {
+			throw new EmailNotFoundException("registered Email not found");
+		}
+	}
+
+	@Override
+	public String getAboutByLoggedUser(String email) {
+		Users Email = userRepository.findByEmail(email);
+		if (Email != null) {
+			 return Email.getAbout();
+			
+		} else {
+			throw new RuntimeException("Empty input Exception");
+		}
+
+	}
+
+	@Override
+	public String getAboutByUser(Long userId) {
+		if (userId != null) {
+			Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("useId not found"));
+			return user.getAbout();
+		} else {
+			throw new RuntimeException("Empty input Exception");
+		}
+
+	}
+
+	@Override
+	public String updateAbout(String about, String email) {
+		Users Email = userRepository.findByEmail(email);
+		if (Email != null) {
+			Email.setAbout(about);
+			userRepository.save(Email);
+			return "updated successfully.";
+		} else {
+			throw new RuntimeException("Empty input Exception");
 		}
 	}
 
